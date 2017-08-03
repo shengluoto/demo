@@ -100,16 +100,16 @@
 			<version>${org.quartzscheduler.version}</version>
 		</dependency>
 		<!-- scala -->
-		<dependency>
-            <groupId>org.scala-lang</groupId>
-            <artifactId>scala-library</artifactId>
-            <version>${scala.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.scala-lang</groupId>
-            <artifactId>scala-compiler</artifactId>
-            <version>${scala.version}</version>
-        </dependency>
+<!-- 		<dependency> -->
+<!--             <groupId>org.scala-lang</groupId> -->
+<!--             <artifactId>scala-library</artifactId> -->
+<!--             <version>${scala.version}</version> -->
+<!--         </dependency> -->
+<!--         <dependency> -->
+<!--             <groupId>org.scala-lang</groupId> -->
+<!--             <artifactId>scala-compiler</artifactId> -->
+<!--             <version>${scala.version}</version> -->
+<!--         </dependency> -->
 
 	</dependencies>
 
@@ -119,7 +119,7 @@
 					<groupId>org.springframework.boot</groupId>
 					<artifactId>spring-boot-maven-plugin</artifactId>
 				</plugin>
-				<plugin>
+				<!-- <plugin>
 					<groupId>net.alchim31.maven</groupId>
 					<artifactId>scala-maven-plugin</artifactId>
 					<version>3.2.1</version>
@@ -154,7 +154,7 @@
 							<jvmArg>-Xmx1024m</jvmArg>
 						</jvmArgs>
 					</configuration>
-				</plugin>
+				</plugin> -->
 			</plugins>
 	</build>
 
