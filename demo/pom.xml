@@ -26,7 +26,7 @@
 		<com.microsoft.sqlserver.version>4.0</com.microsoft.sqlserver.version>
 		<mysql.version>5.1.4</mysql.version>
 		<org.quartzscheduler.version>2.2.3</org.quartzscheduler.version>
-		<scala.version>2.12.1</scala.version>
+<!-- 		<scala.version>2.12.1</scala.version> -->
 	</properties>
 
 	<dependencies>

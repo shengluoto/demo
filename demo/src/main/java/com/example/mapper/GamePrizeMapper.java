@@ -2,6 +2,7 @@ package com.example.mapper;
 
 import java.util.List;
 
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
 import com.example.entity.GamePrize;
@@ -14,6 +15,7 @@ public interface GamePrizeMapper {
     @Select("select count(*) from gamePrize")
     public int getCounts();
 
-    @Select("select * from gamePrize where prizeName like '%#{prizeName}%'")
-    public List<GamePrize> selectGamePrizeByName(String prizeName);
+    @Select("select * from gamePrize where prizeName like '%${prizeName}%'")
+    public List<GamePrize> selectGamePrizeByName(@Param("prizeName") String prizeName);
+    
 }

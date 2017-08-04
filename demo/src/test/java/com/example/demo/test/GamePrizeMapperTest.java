@@ -28,12 +28,12 @@ public class GamePrizeMapperTest {
     
     @Test
     public void testSelectByName() throws Exception {
-        String prizeName = "本";
+        String prizeName = "小";
         List<GamePrize> listGamePrizes = gamePrizeMapper.selectGamePrizeByName(prizeName);
         for (GamePrize gamePrize : listGamePrizes) {
             System.out.println(gamePrize.toString());
         }
-        PageHelper ph = new PageHelper();
+//        PageHelper ph = new PageHelper();
     }
     
     @Test
