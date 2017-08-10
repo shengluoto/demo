@@ -26,7 +26,8 @@
 		<com.microsoft.sqlserver.version>4.0</com.microsoft.sqlserver.version>
 		<mysql.version>5.1.4</mysql.version>
 		<org.quartzscheduler.version>2.2.3</org.quartzscheduler.version>
-<!-- 		<scala.version>2.12.1</scala.version> -->
+		<scala.version>2.11.8</scala.version>
+		<scala.compat.version>2.11</scala.compat.version>
 	</properties>
 
 	<dependencies>
@@ -99,63 +100,43 @@
 			<artifactId>quartz</artifactId>
 			<version>${org.quartzscheduler.version}</version>
 		</dependency>
+		<!-- lombok -->
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.16.10</version>
+			<scope>provided</scope>
+		</dependency>
+
 		<!-- scala -->
-<!-- 		<dependency> -->
-<!--             <groupId>org.scala-lang</groupId> -->
-<!--             <artifactId>scala-library</artifactId> -->
-<!--             <version>${scala.version}</version> -->
-<!--         </dependency> -->
-<!--         <dependency> -->
-<!--             <groupId>org.scala-lang</groupId> -->
-<!--             <artifactId>scala-compiler</artifactId> -->
-<!--             <version>${scala.version}</version> -->
-<!--         </dependency> -->
+		<!-- <dependency> <groupId>org.scala-lang</groupId> <artifactId>scala-library</artifactId> 
+			<version>${scala.version}</version> </dependency> <dependency> <groupId>org.scala-lang</groupId> 
+			<artifactId>scala-compiler</artifactId> <version>${scala.version}</version> 
+			</dependency> <dependency> <groupId>com.typesafe.scala-logging</groupId> 
+			<artifactId>scala-logging-slf4j_2.11</artifactId> <version>2.1.2</version> 
+			</dependency> <dependency> <groupId>org.specs2</groupId> <artifactId>specs2-core_${scala.compat.version}</artifactId> 
+			<version>2.4.16</version> <scope>test</scope> </dependency> <dependency> 
+			<groupId>org.scalatest</groupId> <artifactId>scalatest_${scala.compat.version}</artifactId> 
+			<version>2.2.4</version> <scope>test</scope> </dependency> -->
 
 	</dependencies>
 
 	<build>
-			<plugins>
-				<plugin>
-					<groupId>org.springframework.boot</groupId>
-					<artifactId>spring-boot-maven-plugin</artifactId>
-				</plugin>
-				<!-- <plugin>
-					<groupId>net.alchim31.maven</groupId>
-					<artifactId>scala-maven-plugin</artifactId>
-					<version>3.2.1</version>
-					<executions>
-						<execution>
-						<?m2e execute onConfiguration?>
-							<id>compile-scala</id>
-							<phase>compile</phase>
-							<goals>
-								<goal>add-source</goal>
-								<goal>compile</goal>
-							</goals>
-						</execution>
-						<execution>
-						<?m2e execute onConfiguration?>
-							<id>test-compile-scala</id>
-							<phase>test-compile</phase>
-							<goals>
-								<goal>add-source</goal>
-								<goal>testCompile</goal>
-							</goals>
-						</execution>
-					</executions>
-					<configuration>
-						<recompileMode>incremental</recompileMode>
-						<scalaVersion>${scala.version}</scalaVersion>
-						<args>
-							<arg>-deprecation</arg>
-						</args>
-						<jvmArgs>
-							<jvmArg>-Xms64m</jvmArg>
-							<jvmArg>-Xmx1024m</jvmArg>
-						</jvmArgs>
-					</configuration>
-				</plugin> -->
-			</plugins>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<!-- <plugin> <groupId>net.alchim31.maven</groupId> <artifactId>scala-maven-plugin</artifactId> 
+				<version>3.2.1</version> <executions> <execution> <?m2e execute onConfiguration?> 
+				<id>compile-scala</id> <phase>compile</phase> <goals> <goal>add-source</goal> 
+				<goal>compile</goal> </goals> </execution> <execution> <?m2e execute onConfiguration?> 
+				<id>test-compile-scala</id> <phase>test-compile</phase> <goals> <goal>add-source</goal> 
+				<goal>testCompile</goal> </goals> </execution> </executions> <configuration> 
+				<recompileMode>incremental</recompileMode> <scalaVersion>${scala.version}</scalaVersion> 
+				<args> <arg>-deprecation</arg> </args> <jvmArgs> <jvmArg>-Xms64m</jvmArg> 
+				<jvmArg>-Xmx1024m</jvmArg> </jvmArgs> </configuration> </plugin> -->
+		</plugins>
 	</build>
 
 

@@ -10,8 +10,8 @@ import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.scheduling.support.CronTrigger;
 
-@Configuration
-@EnableScheduling
+//@Configuration
+//@EnableScheduling
 public class TaskCronChange implements SchedulingConfigurer {
 
     private String cron;
