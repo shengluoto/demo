@@ -8,6 +8,15 @@ import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import javax.net.ssl.HttpsURLConnection;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
+
 import net.sf.json.JSONObject;
 
 public class HttpUtil {
@@ -89,5 +98,24 @@ public class HttpUtil {
         } catch (Exception e) {
         }
         return buffer.toString();
+    }
+
+    public static String httpRequest3(String requestUrl, String requestMethod, String outputStr) {
+        String result = null;
+        try {
+            HttpClient httpClient = new DefaultHttpClient();
+            HttpPost httpPost = new HttpPost(requestUrl);
+            httpPost.addHeader("Content-type", "application/json; charset=utf-8");
+            httpPost.setHeader("Accept", "application/json");
+            httpPost.setEntity(new StringEntity(outputStr, "UTF-8"));
+            HttpResponse response = httpClient.execute(httpPost);
+            int statusCode = response.getStatusLine().getStatusCode();
+            if (statusCode == HttpStatus.SC_OK) {
+                result = EntityUtils.toString(response.getEntity(), "UTF-8");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 }

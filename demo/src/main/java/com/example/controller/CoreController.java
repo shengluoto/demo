@@ -1,17 +1,23 @@
 package com.example.controller;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.service.impl.WechatService;
 import com.example.util.SignUtil;
 
 @RestController
 @RequestMapping("weixin")
 public class CoreController {
+    @Autowired
+    private WechatService wechatService;
     //增加日志
     private static Logger log = LoggerFactory.getLogger(CoreController.class);
     //验证是否来自微信服务器的消息
@@ -27,5 +33,11 @@ public class CoreController {
         }
         log.error("接入失败");
         return "";
+    }
+    
+    @RequestMapping(value = "sign",method = RequestMethod.POST)
+    public String checkSignatureAgain(HttpServletRequest request){
+        String receiveMsg = wechatService.processRequest(request);
+        return "success";
     }
   }

@@ -26,19 +26,19 @@ import net.sf.json.JSONObject;
 public class ScheduleTaskService {
     @Autowired
     private AccessTokenMapper accessTokenMapper;
-    private SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
 
-    @Scheduled(cron = "0 0 0/1 * * ? ")
+//    @Scheduled(cron = "0 0 0/1 * * ? ")
     public void task1() {
         String accessToken = getAccessToken();
         accessTokenMapper.insert(accessToken);
         System.out.println("MyTask1Cron:" + accessToken);
     }
 
-    @Scheduled(cron = "0 0/1 * * * ? ")
+//    @Scheduled(cron = "0 0/2 * * * ? ")
     public void task2() {
-        String touser = "oPYGs0xZhouSpPQGNmY4oMKsn0ic";
-        String template_id = "azfBGtfbA-2jAWbeXsqJJSt0BWelDCzGWEWADvBFBVQ";
+        SimpleDateFormat dfs = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+        String touser = "o6kR9wLXvGAJE4ldODPf39Pz0hCE";
+        String template_id = "SrT8gZn1nLJl6EHrwnfU_50TvudjD7G524vyTat8ahY";
         String url = "http://weixin.qq.com/download";
         TemplateData templateDate = new TemplateData();
         templateDate.setTouser(touser);
@@ -59,7 +59,9 @@ public class ScheduleTaskService {
         keyword1.setValue("为商机申请");
         data.put("keyword1", keyword1);
         keyword2.setColor(color);
-        keyword2.setValue("2017-9-5");
+        Date nowTime = new Date();
+        String strDate = dfs.format(nowTime);
+        keyword2.setValue(strDate);
         data.put("keyword2", keyword2);
         keyword3.setColor(color);
         keyword3.setValue("湖南的");
@@ -70,7 +72,7 @@ public class ScheduleTaskService {
         templateDate.setData(data);
         String jsonString = new Gson().toJson(templateDate).toString();
         AccessToken at = accessTokenMapper.getLatestAccessToken();
-        SimpleDateFormat dfs = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        
         Date oldTime=at.getCreateTime();
         Date newTime =new Date();
         long between=(newTime.getTime()-oldTime.getTime())/1000;
@@ -90,7 +92,7 @@ public class ScheduleTaskService {
 
     public String getAccessToken() {
         String url =
-                "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=wx3172e2ea2c160538&secret=708b228d53e3f8877d2e9a4a0ae02883";
+                "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=wx88c7d6055939b9ae&secret=3775bc55fff28c4c6915b24b379016da";
         JSONObject accessToken = HttpUtil.httpRequest(url, "GET", null);
         return accessToken.getString("access_token");
     }

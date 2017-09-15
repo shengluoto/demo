@@ -8,6 +8,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import com.example.entity.AccessToken;
 import com.example.mapper.AccessTokenMapper;
+import com.example.util.Constants;
+import com.example.util.PropertiesLoader;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -30,11 +32,9 @@ public class AccessTokenMapperTest {
     }
     
     @Test
-    public void testIntPlusSpace() throws Exception {
-        int a = 5;
-        String b = a + "";
-        System.out.println(b);
-        String c = null;
-        System.out.println(c.equals(""));
+    public void getProperties() throws Exception {
+        String token =
+                PropertiesLoader.loadProperties(Constants.wechatProPath).getProperty("token");
+        System.out.println(token);
     }
 }
