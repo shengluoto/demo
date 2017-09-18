@@ -15,7 +15,9 @@ import com.example.entity.AccessToken;
 import com.example.mapper.AccessTokenMapper;
 import com.example.model.DetailData;
 import com.example.model.TemplateData;
+import com.example.util.Constants;
 import com.example.util.HttpUtil;
+import com.example.util.PropertiesLoader;
 import com.google.gson.Gson;
 
 import net.sf.json.JSONObject;
@@ -27,14 +29,14 @@ public class ScheduleTaskService {
     @Autowired
     private AccessTokenMapper accessTokenMapper;
 
-//    @Scheduled(cron = "0 0 0/1 * * ? ")
+    // @Scheduled(cron = "0 0 0/1 * * ? ")
     public void task1() {
         String accessToken = getAccessToken();
         accessTokenMapper.insert(accessToken);
         System.out.println("MyTask1Cron:" + accessToken);
     }
 
-//    @Scheduled(cron = "0 0/2 * * * ? ")
+    // @Scheduled(cron = "0 0/2 * * * ? ")
     public void task2() {
         SimpleDateFormat dfs = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
         String touser = "o6kR9wLXvGAJE4ldODPf39Pz0hCE";
@@ -44,7 +46,7 @@ public class ScheduleTaskService {
         templateDate.setTouser(touser);
         templateDate.setTemplate_id(template_id);
         templateDate.setUrl(url);
-        //设置详情属性
+        // 设置详情属性
         Map<String, DetailData> data = new HashMap<String, DetailData>();
         DetailData first = new DetailData();
         DetailData keyword1 = new DetailData();
@@ -72,16 +74,16 @@ public class ScheduleTaskService {
         templateDate.setData(data);
         String jsonString = new Gson().toJson(templateDate).toString();
         AccessToken at = accessTokenMapper.getLatestAccessToken();
-        
-        Date oldTime=at.getCreateTime();
-        Date newTime =new Date();
-        long between=(newTime.getTime()-oldTime.getTime())/1000;
-        String accessToken ="";
-        //数据库中的access_token时间若超过7200秒则重新获取
-        if(between>7200){
+
+        Date oldTime = at.getCreateTime();
+        Date newTime = new Date();
+        long between = (newTime.getTime() - oldTime.getTime()) / 1000;
+        String accessToken = "";
+        // 数据库中的access_token时间若超过7200秒则重新获取
+        if (between > 7200) {
             accessToken = getAccessToken();
             accessTokenMapper.insert(accessToken);
-        }else{//否则获取数据库存的access_token
+        } else {// 否则获取数据库存的access_token
             accessToken = accessTokenMapper.getLatestAccessToken().getAccessToken();
         }
         String postURL = "https://api.weixin.qq.com/cgi-bin/message/template/send?access_token="
@@ -96,4 +98,5 @@ public class ScheduleTaskService {
         JSONObject accessToken = HttpUtil.httpRequest(url, "GET", null);
         return accessToken.getString("access_token");
     }
+
 }

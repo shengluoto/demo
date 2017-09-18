@@ -6,15 +6,20 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.ConnectException;
 import java.net.HttpURLConnection;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import javax.net.ssl.HttpsURLConnection;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.conn.ConnectTimeoutException;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
 import net.sf.json.JSONObject;
@@ -100,10 +105,16 @@ public class HttpUtil {
         return buffer.toString();
     }
 
-    public static String httpRequest3(String requestUrl, String requestMethod, String outputStr) {
+    public static JSONObject httpRequest3(String requestUrl, String requestMethod,
+            String outputStr) {
+        int connectTimeout = 1000;
+        int socketTimeout1 = 1000;
         String result = null;
         try {
-            HttpClient httpClient = new DefaultHttpClient();
+            CloseableHttpClient httpClient = HttpClients.createDefault();
+            RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(connectTimeout)
+                    .setConnectionRequestTimeout(connectTimeout).setSocketTimeout(socketTimeout1)
+                    .setRedirectsEnabled(true).build();
             HttpPost httpPost = new HttpPost(requestUrl);
             httpPost.addHeader("Content-type", "application/json; charset=utf-8");
             httpPost.setHeader("Accept", "application/json");
@@ -113,9 +124,14 @@ public class HttpUtil {
             if (statusCode == HttpStatus.SC_OK) {
                 result = EntityUtils.toString(response.getEntity(), "UTF-8");
             }
-        } catch (Exception e) {
+        } catch (ConnectTimeoutException e) {
             e.printStackTrace();
+        } catch (SocketTimeoutException e) {
+        } catch (Exception e) {
         }
-        return result;
+        if (result == null || "".equals(result))
+            return null;
+        else
+            return JSONObject.fromObject(result);
     }
 }
