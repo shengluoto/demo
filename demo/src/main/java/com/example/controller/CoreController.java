@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.service.impl.WechatService;
 import com.example.util.SignUtil;
 
+import io.swagger.annotations.ApiOperation;
+
 @RestController
 @RequestMapping("weixin")
 public class CoreController {
@@ -21,6 +23,7 @@ public class CoreController {
     //增加日志
     private static Logger log = LoggerFactory.getLogger(CoreController.class);
     //验证是否来自微信服务器的消息
+    @ApiOperation("首次接入验证")
     @RequestMapping(value = "sign",method = RequestMethod.GET)
     public String checkSignature(@RequestParam(name = "signature" ,required = false) String signature  ,
                                  @RequestParam(name = "nonce",required = false) String  nonce ,

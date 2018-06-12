@@ -38,6 +38,7 @@ public class WechatService {
         }
         log.info(responseMessage);
         return responseMessage;
+        
     }
 
 }

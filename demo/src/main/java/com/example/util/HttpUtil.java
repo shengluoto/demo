@@ -14,6 +14,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.ConnectTimeoutException;
 import org.apache.http.entity.StringEntity;
@@ -119,13 +120,13 @@ public class HttpUtil {
             httpPost.addHeader("Content-type", "application/json; charset=utf-8");
             httpPost.setHeader("Accept", "application/json");
             httpPost.setEntity(new StringEntity(outputStr, "UTF-8"));
-            HttpResponse response = httpClient.execute(httpPost);
+            CloseableHttpResponse response = httpClient.execute(httpPost);
             int statusCode = response.getStatusLine().getStatusCode();
             if (statusCode == HttpStatus.SC_OK) {
                 result = EntityUtils.toString(response.getEntity(), "UTF-8");
             }
+            response.close();
         } catch (ConnectTimeoutException e) {
-            e.printStackTrace();
         } catch (SocketTimeoutException e) {
         } catch (Exception e) {
         }
