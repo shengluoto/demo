@@ -210,6 +210,12 @@
 	 		<artifactId>springfox-swagger-ui</artifactId>
 	    	<version>2.7.0</version>
 		</dependency>
+		
+				<dependency>
+    		<groupId>org.redisson</groupId>
+    		<artifactId>redisson</artifactId>
+    		<version>3.5.7</version>
+		</dependency>
 	</dependencies>
 
 	<build>
