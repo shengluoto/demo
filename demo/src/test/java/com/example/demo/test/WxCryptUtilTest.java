@@ -68,16 +68,6 @@ public class WxCryptUtilTest {
     assertEquals(plainMessage, this.replyMsg);
   }
 
-  public void testAesEncrypt() {
-    WxCryptUtil pc = new WxCryptUtil(this.token, this.encodingAesKey, this.appId);
-    assertEquals(pc.encrypt(this.randomStr, this.replyMsg), this.afterAesEncrypt);
-  }
-
-  public void testAesEncrypt2() {
-    WxCryptUtil pc = new WxCryptUtil(this.token, this.encodingAesKey, this.appId);
-    assertEquals(pc.encrypt(this.randomStr, this.replyMsg2), this.afterAesEncrypt2);
-  }
-
   public void testValidateSignatureError() throws ParserConfigurationException, SAXException,
     IOException {
     try {
