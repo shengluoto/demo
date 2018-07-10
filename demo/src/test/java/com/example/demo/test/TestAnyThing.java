@@ -1,10 +1,17 @@
 package com.example.demo.test;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.Stack;
 
 import org.junit.Test;
 
+import com.example.enums.ModuleTypeEnum;
+import com.example.exception.ResultException;
+import com.example.util.OptionUtil;
+
 import io.rong.util.CodeUtil;
+import io.vavr.control.Try;
 
 public class TestAnyThing {
 	
@@ -20,5 +27,48 @@ public class TestAnyThing {
 		}
 		String sha1Str = CodeUtil.hexSHA1(content.toString());
 		System.out.println(sha1Str);
+	}
+	
+	@Test
+	public void test2(){
+		String moduleType = "6";
+		switch (ModuleTypeEnum.getByValue(moduleType)) {
+		case USER:
+			System.out.println("用户");
+			break;
+		case TEAM:
+			System.out.println("组织");
+			break;
+		case ROLE:
+			System.out.println("角色");
+			break;
+		case DEPARTMENT:
+			System.out.println("部门");
+			break;
+		case POSITION:
+			System.out.println("职务");
+			break;
+		case PERSON:
+			System.out.println("人员");
+			break;
+		case COMPANY:
+			System.out.println("公司");
+			break;
+		}
+	}
+	
+	@Test
+	public void test3(){
+		List<String> list = Arrays.asList("(","(","(",")");
+		Stack<String> stack = new Stack<>();
+		for (String m : list) {
+			if ("(".equals(m)) {
+				stack.push("(");
+			} else if (")".equals(m)) {
+				Try.of(()->stack.pop()).getOrElseThrow(()->new ResultException(-2,"关联条件中括号不闭合!",null,null,null));
+			}
+		}
+		System.out.println(stack.size());
+		OptionUtil.of(!stack.isEmpty()).getOrElseThrow(()->new ResultException(-2,"关联检验失败!",null,null,null));
 	}
 }

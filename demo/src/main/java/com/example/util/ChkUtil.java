@@ -1,6 +1,11 @@
 package com.example.util;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
@@ -15,8 +20,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.example.enums.ResultEnum;
+import com.example.exception.ResultException;
 
 
 public class ChkUtil {
@@ -33,7 +38,8 @@ public class ChkUtil {
 	public static final String EXP_PRICE = "^([1-9]\\d+|[1-9])(\\.\\d\\d?)*$";
 	public static final String EXP_MOBILE = "[0-9]{11}";
 	public static final String EXP_POSTALCODE = "[0-9]{6}";
-	public static final String EXP_TEL = "[0-9]{3,4}[-]{1}[0-9]{7,8}";
+//	public static final String EXP_TEL = "[0-9]{3,4}[-]{1}[0-9]{7,8}";
+	public static final String EXP_TEL = "^0\\d{2,3}-?\\d{7,8}$|^400(-\\d{3,4}){2}$";
 	public static final String EXP_IP = "\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}";
 	public static final String EXP_CHINESE = "[һ-�]*";
 	public static final String EXP_0_9_a_z_A_Z_CHINESE = "[0-9a-zA-Zһ-�]*";
@@ -49,6 +55,7 @@ public class ChkUtil {
 	public static final String FILED_ISUNIQUE = "isUnique";
 	public static final String FILED_ISCHECKEX = "isCheckEx";
 	public static final String FILED_HINT = "hint";
+	public static final String ACCOUNT_CARD="^[1-9]+[0-9]{15,18}";
 	public static final String FILED_PRICE = "^\\d{1,10}$|^\\d{1,10}[.]\\d{1,2}$";
 	public static final String EXP_HTTP = "^((https|http)?://)"
 			+ "(([0-9]{1,3}\\.){3}[0-9]{1,3}" // IP形式的URL- 199.194.52.184
@@ -441,6 +448,7 @@ public class ChkUtil {
 	 * @param type 类型（0：金额，1：时间yyyy-MM-dd，2：邮箱，3:整数，4:手机，5:带分隔符的字符串，6:list集合，7:数字，8:时间(yyyy-MM),9:身份证，
 	 * 				10:double类型数字，[允许正数，负数，0]，12:double类型数字，[只能正数、0（不允许负数）]，13:double类型数字，[只能正数（不允许负数或0）]，
 	 * 				11:其他(有其他需要时在此补充)）14设备主机SN(14位，以SN开头) 15传感器编号（12为 16进制），16:电话，17:邮政，18:yyyy-MM-dd HH:mm:ss时间
+	 *              19:银行卡号
 	 * @param sign 分隔符;;
 	 * @return
 	 * @author Diego.zhou
@@ -476,11 +484,11 @@ public class ChkUtil {
 					map.put("message", name+"格式错误，请检查输入！");
 					return map;
 				}
-				if(new BigDecimal(str+"").compareTo(new BigDecimal(0))<0){
-					map.put("code", "4008");
-					map.put("message", name+"为正数，格式错误，请检查输入！");
-					return map;
-				}
+//				if(new BigDecimal(str+"").compareTo(new BigDecimal(0))<0){
+//					map.put("code", "4008");
+//					map.put("message", name+"为正数，格式错误，请检查输入！");
+//					return map;
+//				}
 //				String temp1=str+"";
 //				int position1 = temp1.indexOf(".");
 //				String databe1 = temp1.substring(0, position1);
@@ -495,11 +503,11 @@ public class ChkUtil {
 //					map.put("message", name+"为正数，格式错误，请检查输入！");
 //					return map;
 //				}
-				if(!(str+"").matches(FILED_PRICE)){
-					map.put("code", "4008");
-					map.put("message", name+"，格式错误，请检查输入！");
-					return map;
-				}
+//				if(!(str+"").matches(FILED_PRICE)){
+//					map.put("code", "4008");
+//					map.put("message", name+"，格式错误，请检查输入！");
+//					return map;
+//				}
 			}
 			if(!ChkUtil.isEmpty(type) && type.equals("1")){//日期yyyy-MM-dd
 				boolean isDate = ChkUtil.isDate(str);
@@ -556,6 +564,14 @@ public class ChkUtil {
 			}
 			if(!ChkUtil.isEmpty(type) && type.equals("16")){//电话
 				boolean isMobile = ChkUtil.chekRegex(str,ChkUtil.EXP_TEL);
+				if(!isMobile){
+					map.put("code", "4008");
+					map.put("message", name+"，格式错误，请检查输入！");
+					return map;
+				}
+			}
+			if(!ChkUtil.isEmpty(type) && type.equals("19")){//电话
+				boolean isMobile = ChkUtil.chekRegex(str,ChkUtil.ACCOUNT_CARD);
 				if(!isMobile){
 					map.put("code", "4008");
 					map.put("message", name+"，格式错误，请检查输入！");
@@ -643,13 +659,13 @@ public class ChkUtil {
 			if(!ChkUtil.isEmpty(type) && type.equals("6")){
 				if((str+"").length()<=length){
 					map.put("code", "4008");
-					map.put("message", name+"长度不能小于"+length);
+					map.put("message", name+"长度不能小于"+length+"位");
 					return map;
 				}
 			}else{
 				if((str+"").length()>length){
 					map.put("code", "4008");
-					map.put("message", name+"长度不能超过"+length);
+					map.put("message", name+"长度不能超过"+length+"位");
 					return map;
 				}
 			}
@@ -779,4 +795,174 @@ public class ChkUtil {
 		return map;
 	}
 	
+
+	/**
+	 * 校验的字段
+	 * @param jsonValue 解析后的json获取的值
+	 * @param isRequired 是否必传
+	 * @param length 字段长度比较值
+	 * @param cnName 校验不通过提示的中文名
+	 * @param type 校验的类型
+	 * @param defaultValue 如果为不必传,可设置返回的默认值
+	 * @param loginName
+	 * @param token
+	 * @param clientType
+	 * @return 若为不必传,同时设置了默认值,则返回默认值
+	 * @author
+	 * 2018年6月1日 tck 创建
+	 * 	eg: fieldCheck(json, "name", false, 26, "名称", "", "张三", loginName, token, clientType)
+	 */
+	@SuppressWarnings("all")
+	public static String fieldCheck(Object jsonValue, boolean isRequired, int length, String cnName, String type, String defaultValue,
+			String loginName, String token, String clientType) {
+		Map valueMap = fieldCheck(jsonValue, isRequired, length, cnName, type);
+		if(ChkUtil.isEmptyAllObject(valueMap)){
+			throw new ResultException(ResultEnum.DATA_ERROR, token, loginName, clientType);
+		}
+		if(!valueMap.get("code").equals("1")){
+			throw new ResultException(-2, valueMap.get("message").toString(), token, loginName, clientType);
+		}
+		String value = valueMap.get("data").toString().trim();
+		// 若为不必传,同时设置了默认值,则取默认值
+		if (!isRequired && !isEmpty(defaultValue)) {
+			value = defaultValue;
+		}
+		return value;
+	}
+	
+	/**
+	 * 校验的字段
+	 * @param jsonValue 解析后的json获取的值
+	 * @param isRequired 是否必传
+	 * @param length 字段长度比较值
+	 * @param cnName 校验不通过提示的中文名
+	 * @param type 校验的类型
+	 * @param loginName
+	 * @param token
+	 * @param clientType
+	 * @author
+	 * 2018年6月1日 tck 创建
+	 * 	eg: fieldCheck(json.get("name"), false, 26, "名称", "", loginName, token, clientType)
+	 */
+	@SuppressWarnings("all")
+	public static String fieldCheck(Object jsonValue, boolean isRequired, int length, String cnName, String type,
+			String token, String loginName, String clientType) {
+		Map valueMap = fieldCheck(jsonValue, isRequired, length, cnName, type);
+		OptionUtil.of(valueMap)
+			.getOrElseThrow(() -> new ResultException(ResultEnum.DATA_ERROR,token,loginName,clientType));
+		OptionUtil.of(!valueMap.get("code").equals("1"))
+			.getOrElseThrow(() -> new ResultException(-2, valueMap.get("message").toString(), token, loginName, clientType));
+		String value = valueMap.get("data").toString().trim();
+		return value;
+	}
+	
+	/**
+	 * 实体类的已删除校验
+	 * @param clazz
+	 * @param entity
+	 * @param token
+	 * @param loginName
+	 * @param clientType
+	 * @author
+	 * 2018年6月15日 tck 创建
+	 */
+	public static<T> void entityDelete(Class<?> clazz,T entity, String token, String loginName, String clientType) {
+		try{
+			Class<?> superClass = clazz.getSuperclass();
+			Method getStateMethod = superClass.getDeclaredMethod("getState");
+			String state = getStateMethod.invoke(entity).toString();
+			OptionUtil.of(entity).getOrElseThrow(() -> new ResultException(ResultEnum.DATA_NULL,token,loginName,clientType));
+			OptionUtil.of("1".equals(state)).getOrElseThrow(() -> new ResultException(ResultEnum.DATA_DELETED,token,loginName,clientType));
+		}catch(ResultException e){
+			throw e;
+		}catch(Exception e){
+			throw new ResultException(-3, e.getMessage(), token, loginName, clientType);
+		}
+	}
+	
+	/**
+	 * 实体类的已禁用校验
+	 * @param clazz
+	 * @param entity
+	 * @param token
+	 * @param loginName
+	 * @param clientType
+	 * @author
+	 * 2018年6月15日 tck 创建
+	 */
+	public static<T> void entityDisable(Class<?> clazz,T entity, String token, String loginName, String clientType) {
+		try{
+			Class<?> superClass = clazz.getSuperclass();
+			Method getStateMethod = superClass.getDeclaredMethod("getState");
+			String state = getStateMethod.invoke(entity).toString();
+			OptionUtil.of(entity).getOrElseThrow(() -> new ResultException(ResultEnum.DATA_NULL,token,loginName,clientType));
+			OptionUtil.of("1".equals(state)).getOrElseThrow(() -> new ResultException(ResultEnum.DATA_DELETED,token,loginName,clientType));
+			OptionUtil.of("2".equals(state)).getOrElseThrow(() -> new ResultException(ResultEnum.DATA_DISABLED,token,loginName,clientType));
+		}catch(ResultException e){
+			throw e;
+		}catch(Exception e){
+			throw new ResultException(-3, e.getMessage(), token, loginName, clientType);
+		}
+	}
+	
+	/**
+	 * 实体类的重复启用校验
+	 * @param clazz
+	 * @param entity
+	 * @param token
+	 * @param loginName
+	 * @param clientType
+	 * @author
+	 * 2018年6月15日 tck 创建
+	 */
+	public static<T> void entityEnable(Class<?> clazz,T entity, String token, String loginName, String clientType) {
+		try{
+			Class<?> superClass = clazz.getSuperclass();
+			Method getStateMethod = superClass.getDeclaredMethod("getState");
+			String state = getStateMethod.invoke(entity).toString();
+			OptionUtil.of(entity).getOrElseThrow(() -> new ResultException(ResultEnum.DATA_NULL,token,loginName,clientType));
+			OptionUtil.of("1".equals(state)).getOrElseThrow(() -> new ResultException(ResultEnum.DATA_DELETED,token,loginName,clientType));
+			OptionUtil.of("0".equals(state)).getOrElseThrow(() -> new ResultException(ResultEnum.DATA_ENABLED,token,loginName,clientType));
+		}catch(ResultException e){
+			throw e;
+		}catch(Exception e){
+			throw new ResultException(-3, e.getMessage(), token, loginName, clientType);
+		}
+	}
+	
+	/**
+	 * 深度拷贝
+	 * @param obj 需要拷贝对象
+	 * @param loginName 用户名
+	 * @param token 安全令牌
+	 * @param clientType 客户端类型(android/ios/web等)
+	 * @return cloneObj 拷贝后对象
+	 * @author
+	 * 	2018-06-23 athena 整理
+	 */
+	@SuppressWarnings("unchecked")
+    public static <T> T clone(T obj, String token, String loginName, String clientType){
+        T cloneObj = null;
+        try {
+        	if(null!=obj){
+	            //写入字节流
+	            ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+	            ObjectOutputStream out = new ObjectOutputStream(byteOut);
+	            out.writeObject(obj);
+	            out.close();
+	            //分配内存，写入原始对象，生成新对象
+	            ByteArrayInputStream byteIn = new ByteArrayInputStream(byteOut.toByteArray());
+	            ObjectInputStream in = new ObjectInputStream(byteIn);
+	            //返回生成的新对象
+	            cloneObj = (T) in.readObject();
+	            in.close();
+	            byteOut.close();
+	            byteIn.close();
+        	}
+        } catch (Exception e) {
+        	e.printStackTrace();
+        	throw new ResultException(-3, e.getMessage(), token, loginName, clientType);
+        }
+        return cloneObj;
+    }
 }

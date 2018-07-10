@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-public class Test {
+public class TestLambda {
 
     public static void main(String[] args) {
 //        List<Person> persons = Arrays.asList(
