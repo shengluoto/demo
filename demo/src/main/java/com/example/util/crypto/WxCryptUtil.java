@@ -1,9 +1,10 @@
 package com.example.util.crypto;
 
-import org.apache.commons.codec.binary.Base64;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.xml.sax.InputSource;
+import java.io.StringReader;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Random;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
@@ -11,11 +12,13 @@ import javax.crypto.spec.SecretKeySpec;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.StringReader;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Random;
+
+import org.apache.commons.codec.binary.Base64;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.xml.sax.InputSource;
+
+import com.example.util.ChkUtil;
 
 /**
  * <pre>
@@ -82,7 +85,11 @@ public class WxCryptUtil {
       Document document = db.parse(new InputSource(new StringReader(xml)));
 
       Element root = document.getDocumentElement();
-      return root.getElementsByTagName("Encrypt").item(0).getTextContent();
+      if (!ChkUtil.isEmptyAllObject(root.getElementsByTagName("Encrypt").item(0))) { // 获取加密的节点
+    	  return root.getElementsByTagName("Encrypt").item(0).getTextContent();
+      } else {	// 公共号设置为明文传输,无加密信息
+    	  return xml;
+      }
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -137,10 +144,7 @@ public class WxCryptUtil {
    */
   private static String generateXml(String encrypt, String signature,
                                     String timestamp, String nonce) {
-    String format = "<xml>\n" + "<Encrypt><![CDATA[%1$s]]></Encrypt>\n"
-      + "<MsgSignature><![CDATA[%2$s]]></MsgSignature>\n"
-      + "<TimeStamp>%3$s</TimeStamp>\n" + "<Nonce><![CDATA[%4$s]]></Nonce>\n"
-      + "</xml>";
+    String format = "<xml><Encrypt><![CDATA[%1$s]]></Encrypt><MsgSignature><![CDATA[%2$s]]></MsgSignature><TimeStamp>%3$s</TimeStamp><Nonce><![CDATA[%4$s]]></Nonce></xml>";
     return String.format(format, encrypt, signature, timestamp, nonce);
   }
 
@@ -162,8 +166,8 @@ public class WxCryptUtil {
     // 生成安全签名
     String timeStamp = Long.toString(System.currentTimeMillis() / 1000L);
     String nonce = genRandomStr();
-
-    String signature = SHA1.gen(this.token, timeStamp, nonce);
+    // 好变态,传给微信的需要四个参数,而微信给后端服务器的只有三个参数进行验证
+    String signature = SHA1.gen(this.token, timeStamp, nonce, encryptedXml);
     return generateXml(encryptedXml, signature, timeStamp, nonce);
   }
 
@@ -173,7 +177,7 @@ public class WxCryptUtil {
    * @param plainText 需要加密的明文
    * @return 加密后base64编码的字符串
    */
-  public String encrypt(String randomStr, String plainText) {
+  protected String encrypt(String randomStr, String plainText) {
     ByteGroup byteCollector = new ByteGroup();
     byte[] randomStringBytes = randomStr.getBytes(CHARSET);
     byte[] plainTextBytes = plainText.getBytes(CHARSET);
@@ -231,12 +235,16 @@ public class WxCryptUtil {
     String cipherText = extractEncryptPart(encryptedXml);
 
     // 验证安全签名
+    // 好变态,传给微信的需要四个参数,而微信给后端服务器的只有三个参数进行验证
     String signature = SHA1.gen(this.token, timeStamp, nonce);
     if (!signature.equals(msgSignature)) {
       throw new RuntimeException("加密消息签名校验失败");
     }
-    // 解密
-    return decrypt(cipherText);
+    if ( !cipherText.equals(encryptedXml)) { // 解密
+    	return decrypt(cipherText);
+    } else { // 公共号设置为明文传输,无加密信息
+    	return encryptedXml;
+    }
   }
 
   /**
