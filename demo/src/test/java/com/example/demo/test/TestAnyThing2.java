@@ -1,9 +1,10 @@
 package com.example.demo.test;
 
-import java.io.DataInputStream;
+import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -29,8 +30,15 @@ public class TestAnyThing2 {
 		byte[] bstream = msg.getBytes("GBK");
 		out.write(bstream);
 		InputStream inFromServer = client.getInputStream();
-		DataInputStream in = new DataInputStream(inFromServer);
-		System.out.println(LocalDate.now().toString() + LocalTime.now().toString() + "服务器响应： " + in.read());
+		//解析服务器返回的数据
+		InputStreamReader reader = new InputStreamReader(inFromServer);
+		BufferedReader bufReader = new BufferedReader(reader);
+        String s = null;
+        StringBuffer sb = new StringBuffer();
+        while ((s = bufReader.readLine()) != null) {
+            sb.append(s);
+        }
+		System.out.println(LocalDate.now().toString() + LocalTime.now().toString() + "服务器响应： " +sb.toString());
 		client.close();
 		Thread.sleep(1000 * 300);
 	    }
