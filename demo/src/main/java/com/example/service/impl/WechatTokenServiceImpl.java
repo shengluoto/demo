@@ -1,8 +1,6 @@
 package com.example.service.impl;
 
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -18,13 +16,15 @@ import com.example.constant.FixValueConstant;
 import com.example.constant.RedisConstant;
 import com.example.data.TokenParamModel;
 import com.example.data.WechatSNSUser;
-import com.example.enums.CommonConfigEnum;
 import com.example.exception.ResultException;
 import com.example.service.CommonConfigService;
 import com.example.service.WechatTokenService;
 import com.example.util.ChkUtil;
 import com.example.util.Encodes;
 import com.example.util.OkHttpUtil;
+import com.example.util.RedissLockUtil;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 微信中各个token的获取方法
@@ -34,6 +34,7 @@ import com.example.util.OkHttpUtil;
  * 2018年5月30日  tck 创建
  */
 @Service
+@Slf4j
 public class WechatTokenServiceImpl implements WechatTokenService {
 	
 	@Autowired
@@ -48,6 +49,9 @@ public class WechatTokenServiceImpl implements WechatTokenService {
 	@Autowired
 	private RedissonClient redisson;
 	
+	String APPID="wx88c7d6055939b9ae";
+	String APPSECRET="3775bc55fff28c4c6915b24b379016da";
+	
 	/**
 	 * 获取公共号的token(调用公共号的各接口需带上该token)
 	 * @param loginName
@@ -58,38 +62,44 @@ public class WechatTokenServiceImpl implements WechatTokenService {
 	 * 2018年5月30日 tck 创建
 	 */
 	public String getAccessToken(String loginName, String token, String clientType){
-		List<String> keyLisy = Arrays.asList(CommonConfigEnum.WXPUBLICTOKENRENEWAL.getKey(),
-											 CommonConfigEnum.WXPUBLICAPPID.getKey(),
-											 CommonConfigEnum.WXPUBLICAPPSECRET.getKey());
-		Map<String,String> configMap = configService.doGetCommonConfigInfo(keyLisy, loginName, token, clientType);
 		// 加锁
-		RLock lock = redisson.getLock("anyLock");
-		lock.lock();
-		String accessToken = redisTemplate.opsForValue().get("wxPublicToken");
+		String accessToken = "";
+		boolean res = false;
+		RLock lock = redisson.getLock("wxPublicTokenLock");
 		try {
-			// 为空或者小于规定的存活时间就重新获取token
-			Long tokenRenewal = Long.parseLong(configMap.get(CommonConfigEnum.WXPUBLICTOKENRENEWAL.getKey()));
-			if (ChkUtil.isEmpty(accessToken) || redisTemplate.getExpire("wxPublicToken") < tokenRenewal) {
-				String url = wc.wechatPublicPlatTokenUrl
-							   .replace("APPID", configMap.get(CommonConfigEnum.WXPUBLICAPPID.getKey()))
-							   .replace("APPSECRET", configMap.get(CommonConfigEnum.WXPUBLICAPPSECRET.getKey()));
-				String conn = OkHttpUtil.get(url, null);
-				// 解析json格式数据
-				JSONObject json = JSON.parseObject(Encodes.unescapeHtml(conn));
-				// 校验获取是否正确
-				if (!ChkUtil.isEmpty(json.get("errcode"))) {
-					throw new ResultException(-2, "获取微信公共号token失败:"+json.get("errmsg"), token, loginName, clientType);
+			res = lock.tryLock(3, 20, TimeUnit.SECONDS);
+			accessToken = redisTemplate.opsForValue().get("wxPublicToken");
+			if (res) {
+				// 为空或者小于规定的存活时间就重新获取token
+				Long tokenRenewal = Long.parseLong("120");
+				if (ChkUtil.isEmpty(accessToken) || redisTemplate.getExpire("wxPublicToken") < tokenRenewal) {
+					String url = wc.wechatPublicPlatTokenUrl
+							.replace("APPID", APPID)
+							.replace("APPSECRET", APPSECRET);
+					String conn = OkHttpUtil.get(url, null);
+					// 解析json格式数据
+					JSONObject json = JSON.parseObject(Encodes.unescapeHtml(conn));
+					// 校验获取是否正确
+					if (!ChkUtil.isEmpty(json.get("errcode"))) {
+						log.error("获取微信公共号token失败:{}", json.get("errmsg"));
+						throw new ResultException(-2, "获取微信公共号token失败", token, loginName, clientType);
+					}
+					// 放入缓存
+					accessToken = json.getString("access_token");
+					redisTemplate.opsForValue().set("wxPublicToken", accessToken, json.getLong("expires_in"), TimeUnit.SECONDS);
 				}
-				// 放入缓存
-				accessToken = json.getString("access_token");
-				redisTemplate.opsForValue().set("wxPublicToken", accessToken, json.getLong("expires_in"), TimeUnit.SECONDS);
+			} else {
+				throw new ResultException(-2, "获取微信公共号token锁失败", token, loginName, clientType);
 			}
 		} catch (ResultException e) {
 			throw e;
 		} catch (Exception e) {
 			throw new ResultException(-3, e.getMessage(), token, loginName, clientType);
+		} finally{
+			if(res){//释放锁
+				lock.unlock();
+			}
 		}
-		lock.unlock();
 		return accessToken;
 	}
 	

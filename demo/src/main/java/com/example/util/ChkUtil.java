@@ -9,11 +9,14 @@ import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -964,5 +967,65 @@ public class ChkUtil {
         	throw new ResultException(-3, e.getMessage(), token, loginName, clientType);
         }
         return cloneObj;
+    }
+
+	/**
+	 * 得到嵌套保存的实体的真正的先后保存顺序
+	 * @param needSortMap 实体1里包含的引用实体集合,实体2里包含的引用实体集合...组成map集合
+	 * @return
+	 * @author
+	 * 2018年9月7日  tck 创建
+	 */
+	public static List<String> doSortSaveOrder(Map<String,List<String>> needSortMap) {
+		List<String> needSortList = new ArrayList<>();//需要排序的字段
+		List<String> sortedList = new LinkedList<>();//不需要排序的字段(已有序)
+		for(String id : needSortMap.keySet()){
+			if (isEmptyAllObject(needSortMap.get(id))) {
+				sortedList.add(id);
+			} else {
+				needSortList.add(id);
+			}
+		}
+		int maxLoop = 3;
+		loopByIncrement(needSortMap, needSortList, sortedList, maxLoop);
+		if (sortedList.size() < needSortMap.size()) {
+			maxLoop++;
+			loopByIncrement(needSortMap, needSortList, sortedList, maxLoop);
+		}
+		return sortedList;
+	}
+	
+	/**
+	 * 循环增加,若长度不统一再循环增加
+	 * @param sortMap 要排序的map
+	 * @param needSortList 需要排序的集合
+	 * @param sortedList 已排序的集合
+	 * @param maxLoop
+	 * @author
+	 * 2018年9月7日  tck 创建
+	 */
+	private static void loopByIncrement(Map<String,List<String>> needSortMap, 
+									    List<String> needSortList, 
+									    List<String> sortedList, 
+									    int maxLoop) {
+		for (int i=0; i<maxLoop; i++) {
+			for (String needSortKey : needSortList) {
+				boolean isAllSaved = true;
+				for (String innerId : needSortMap.get(needSortKey)) {
+					if (!sortedList.contains(innerId)) {
+						isAllSaved = false;
+						break;
+					}
+				}
+				if (isAllSaved && !sortedList.contains(needSortKey)) {
+					sortedList.add(needSortKey);
+				}
+			}
+		}
+	}
+	
+	public static String toCron(LocalDateTime dateTime) {
+	        return String.format("%s %s %s %s %s %s", 
+	        		dateTime.getSecond(), dateTime.getMinute(), dateTime.getHour(), dateTime.getDayOfMonth(), "*", "?");
     }
 }

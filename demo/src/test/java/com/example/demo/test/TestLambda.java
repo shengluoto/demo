@@ -5,8 +5,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+
+import com.example.data.GetAlias;
 
 public class TestLambda {
 
@@ -62,7 +63,7 @@ public class TestLambda {
 //       for (String string : array) {
 //		System.out.println(string);
 //       }
-        GetAlias alias = new GetAlias();
+        GetAlias alias = new GetAlias("haha");
         long start1 = System.nanoTime();
 //        List<Employee> emplList2 = persons.stream().map(p ->new Employee(p.getName(), p.getLastName(),alias.getNextAlias(), 1000)).collect(Collectors.toList());
         persons.stream().map(Person::getName).collect(Collectors.joining(""));
@@ -72,24 +73,25 @@ public class TestLambda {
         List<Employee> emplList = new ArrayList<>(persons.size());
         StringBuilder sb = new StringBuilder();
         for (Person p : persons) {
-//        	empl = new Employee(p.getName(), p.getLastName(),alias.getNextAlias(), 1000);
-//        	emplList.add(new Employee(p.getName(), p.getLastName(),alias.getNextAlias(), 1000));
-//        	emplList.add(empl);
+        	empl = new Employee(p.getName(), p.getLastName(),alias.getNextAlias(), 1000);
+        	emplList.add(new Employee(p.getName(), p.getLastName(),alias.getNextAlias(), 1000));
+        	emplList.add(empl);
         	sb.append(p.getName());
 		}
         sb.toString();
         System.out.println("for循环时间:"+(System.nanoTime()-start2)/1000000);
+        emplList.forEach(System.out::println);
         
 //        stdByClass.forEach((k,v)->System.out.println("Key:"+k+"  "+ ",	Value:"+((List<Person>)v).stream().map(Person::toString).collect(Collectors.joining(","))));
-        long start3 = System.nanoTime();
-        Map<String,List<Person>> stdByClass = persons.stream().collect(Collectors.groupingBy(Person::getName));
-        System.out.println("mapsrstream时间:"+(System.nanoTime()-start3)/1000);
-        long start4 = System.nanoTime();
-        Map<String,Person> map = new HashMap<>();
-        for (Person p : persons) {
-        	map.put(p.getName(), p);
-		}
-        System.out.println("mapfor时间:"+(System.nanoTime()-start4)/1000);
+//        long start3 = System.nanoTime();
+//        Map<String,List<Person>> stdByClass = persons.stream().collect(Collectors.groupingBy(Person::getName));
+//        System.out.println("mapsrstream时间:"+(System.nanoTime()-start3)/1000);
+//        long start4 = System.nanoTime();
+//        Map<String,Person> map = new HashMap<>();
+//        for (Person p : persons) {
+//        	map.put(p.getName(), p);
+//		}
+//        System.out.println("mapfor时间:"+(System.nanoTime()-start4)/1000);
     }
     
     public static int getArrayListCapacity(ArrayList<?> arrayList) {
@@ -116,23 +118,23 @@ public class TestLambda {
  * @author 
  * 2018年6月28日  tck 创建
  */
-class GetAlias {
-	public static AtomicInteger start = new AtomicInteger(0);;
-	
-	public GetAlias() {
-	}
-	
-	public String getNextAlias(){
-		int next = getStart().incrementAndGet();
-		StringBuilder sb = new StringBuilder("alias");
-		sb.append(next).append("_");
-		return sb.toString();
-	}
-
-	public AtomicInteger getStart() {
-		return start;
-	}
-}
+//class GetAlias {
+//	public static AtomicInteger start = new AtomicInteger(0);;
+//	
+//	public GetAlias() {
+//	}
+//	
+//	public String getNextAlias(){
+//		int next = getStart().incrementAndGet();
+//		StringBuilder sb = new StringBuilder("alias");
+//		sb.append(next).append("_");
+//		return sb.toString();
+//	}
+//
+//	public AtomicInteger getStart() {
+//		return start;
+//	}
+//}
 
 class Person {
 

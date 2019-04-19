@@ -2,6 +2,8 @@ package com.example.demo.test;
 
 import org.junit.Test;
 
+import com.example.enums.MessageRemindRepeatTypeEnum;
+
 public class TestEnum {
 
     @Test
@@ -37,6 +39,28 @@ public class TestEnum {
         int a=32;
         int b=9;
         System.out.println(a+b+"");
+    }
+    @Test
+    public void test2() {
+    	String repeatType ="";
+    	switch (MessageRemindRepeatTypeEnum.getByValue(repeatType)) {
+		case EVERYDAY:
+			System.out.println("0");
+			break;
+		case EVERYWEEK:
+			System.out.println("1");
+			break;
+		case EVERYMONTH:
+			System.out.println("2");
+			break;
+		case EVERYYEAR:
+			System.out.println("3");
+			break;
+		default:
+			System.out.println("4");
+			return;
+		}
+    	System.out.println("5");
     }
 
 }

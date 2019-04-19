@@ -10,6 +10,8 @@ import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.example.util.RedissLockUtil;
+
 /**
  * redis分布式锁配置(暂未读取分布式配置文件)
  * @ClassName: RedissonConfig
@@ -61,4 +63,15 @@ public class RedissonConfig {
         }
         return Redisson.create(config);
     }
+    
+//    /**
+//     * 装配locker类，并将实例注入到RedissLockUtil中
+//     * @return
+//     */
+//    @Bean
+//    RedissLockUtil redissLockUtil(RedissonClient redissonClient) {
+//    	RedissLockUtil redissLockUtil = new RedissLockUtil();
+//    	redissLockUtil.setRedissonClient(redissonClient);
+//		return redissLockUtil;
+//    }
 }

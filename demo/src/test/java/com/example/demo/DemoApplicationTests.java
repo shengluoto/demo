@@ -7,17 +7,26 @@ import java.util.stream.Collectors;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import com.example.service.WechatTokenService;
+import com.example.task.MessageRemindJobTask;
+import com.example.util.QuartzFactoryUtil;
+
+import lombok.extern.slf4j.Slf4j;
+
 @RunWith(SpringRunner.class)
 @SpringBootTest
+@Slf4j
 public class DemoApplicationTests {
 
-	@Test
+	//@Test
 	public void contextLoads() {
 	}
-
+	@Autowired
+    private WechatTokenService wechatTokenService;
 
     private static class GetAlias {
 		public static AtomicInteger start = new AtomicInteger(0);;
@@ -36,7 +45,7 @@ public class DemoApplicationTests {
 			return start;
 		}
 	}
-    @Test
+    //@Test
     public void test3() {
         List<Person> persons = Arrays.asList(
                 new Person("e1", "l1"),
@@ -54,6 +63,17 @@ public class DemoApplicationTests {
 				});
         	t.start();
         }
+    }
+    
+    @Test
+    public void test6() {
+    	for(int i=0; i<200; i++) {
+    		Thread t = new Thread(()->{
+    			log.info("{}",wechatTokenService.getAccessToken(null, null, null));
+			});
+    		t.start();
+    	}
+    	
     }
     
 
@@ -84,56 +104,68 @@ class Person {
     }
 }
 
-class Employee  {
+	class Employee {
 
-    private double salary;
-    private String name;
-    private String lastName;
-    private String alias;
+		private double salary;
+		private String name;
+		private String lastName;
+		private String alias;
 
-    public Employee(String name, String lastName, String alias, double salary) {
-        this.name=name;
-        this.lastName=lastName;
-        this.salary = salary;
-        this.alias = alias;
-    }
+		public Employee(String name, String lastName, String alias, double salary) {
+			this.name = name;
+			this.lastName = lastName;
+			this.salary = salary;
+			this.alias = alias;
+		}
 
-    public double getSalary() {
-        return salary;
-    }
+		public double getSalary() {
+			return salary;
+		}
 
-    public void setSalary(double salary) {
-        this.salary = salary;
-    }
-    public String getName() {
-        return name;
-    }
+		public void setSalary(double salary) {
+			this.salary = salary;
+		}
 
-    public void setName(String name) {
-        this.name = name;
-    }
+		public String getName() {
+			return name;
+		}
 
-    public String getLastName() {
-        return lastName;
-    }
+		public void setName(String name) {
+			this.name = name;
+		}
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-    public Employee() {
-    }
+		public String getLastName() {
+			return lastName;
+		}
 
-	public String getAlias() {
-		return alias;
+		public void setLastName(String lastName) {
+			this.lastName = lastName;
+		}
+
+		public Employee() {
+		}
+
+		public String getAlias() {
+			return alias;
+		}
+
+		public void setAlias(String alias) {
+			this.alias = alias;
+		}
+
+		@Override
+		public String toString() {
+			return "Employee [salary=" + salary + ", name=" + name + ", lastName=" + lastName + ", alias=" + alias
+					+ "]";
+		}
 	}
-
-	public void setAlias(String alias) {
-		this.alias = alias;
+	
+//	@Test
+    public void test4() {
+		String sendOnceOfCron = "35 59 21 13 * ?";
+		QuartzFactoryUtil.getInstance().addJobByCron(
+				"my_injtest", "my_injtest", MessageRemindJobTask.class, sendOnceOfCron, null);
+		
 	}
-
-	@Override
-	public String toString() {
-		return "Employee [salary=" + salary + ", name=" + name + ", lastName=" + lastName + ", alias=" + alias + "]";
-	}
-}
+	
 }
